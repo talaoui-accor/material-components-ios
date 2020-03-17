@@ -446,22 +446,32 @@ static const CGFloat MDCDialogMessageOpacity = 0.54f;
   return accessoryViewSize.height > 0.0f;
 }
 
+// @return the space between the title and the title icon, or 0 if any of them is missing.
 - (CGFloat)titleIconInsetBottom {
   return [self hasTitleIconOrImage] && [self hasTitle] ? self.titleIconInsets.bottom : 0.0f;
 }
 
 - (CGFloat)titleInsetTop {
-  return [self hasTitleIconOrImage] ? self.titleIconInsets.top : self.titleInsets.top;
+  return [self hasTitleIconOrImage] ? self.titleIconInsets.top
+                                    : ([self hasTitle] ? self.titleInsets.top : 0.f);
 }
 
 - (CGFloat)titleInsetBottom {
-  if (![self hasMessage] && ![self hasAccessoryView]) {
-    return 0.0f;
-  } else if ([self hasTitle] || [self hasTitleIconOrImage]) {
-    return self.titleInsets.bottom;
-  } else {
-    return 0.0f;
-  }
+  return [self hasTitleIconOrImage] || [self hasTitle] ? self.titleInsets.bottom : 0.0f;
+}
+
+- (CGFloat)titleViewInsetLeft {
+  return [self hasTitleIconOrImage] ? MIN(self.titleInsets.left, self.titleIconInsets.left)
+                                    : self.titleInsets.left;
+}
+
+- (CGFloat)titleViewInsetRight {
+  return [self hasTitleIconOrImage] ? MIN(self.titleInsets.right, self.titleIconInsets.right)
+                                    : self.titleInsets.right;
+}
+
+- (CGFloat)contentInsetTop {
+  return [self hasTitle] || [self hasTitleIconOrImage] ? 0.f : self.contentInsets.top;
 }
 
 - (CGFloat)accessoryVerticalInset {
@@ -469,13 +479,12 @@ static const CGFloat MDCDialogMessageOpacity = 0.54f;
 }
 
 - (CGSize)titleIconViewSize {
-  CGSize titleIconViewSize = CGSizeZero;
   if (self.titleIconView != nil) {
-    titleIconViewSize = self.titleIconView.frame.size;
+    return self.titleIconView.frame.size;
   } else if (self.titleIconImageView != nil) {
-    titleIconViewSize = self.titleIconImageView.image.size;
+    return self.titleIconImageView.image.size;
   }
-  return titleIconViewSize;
+  return CGSizeZero;
 }
 
 - (CGRect)titleFrameWithTitleSize:(CGSize)titleSize {
@@ -486,7 +495,8 @@ static const CGFloat MDCDialogMessageOpacity = 0.54f;
 }
 
 - (CGRect)messageFrameWithSize:(CGSize)messageSize {
-  return CGRectMake(self.contentInsets.left, 0.0f, messageSize.width, messageSize.height);
+  CGFloat contentTop = [self contentInsetTop];
+  return CGRectMake(self.contentInsets.left, contentTop, messageSize.width, messageSize.height);
 }
 
 - (CGRect)titleIconFrameWithTitleSize:(CGSize)titleSize {
@@ -528,24 +538,26 @@ static const CGFloat MDCDialogMessageOpacity = 0.54f;
 
 // @param boundingWidth should not include any internal margins or padding
 - (CGSize)calculateContentSizeThatFitsWidth:(CGFloat)boundingWidth {
-  CGFloat leftInset =
-      MAX(MAX(self.titleInsets.left, self.titleIconInsets.left), self.contentInsets.left);
-  CGFloat rightInset =
-      MAX(MAX(self.titleInsets.right, self.titleIconInsets.right), self.contentInsets.right);
-
+  CGFloat contentInsets = self.contentInsets.left + self.contentInsets.right;
+  CGFloat titleInsets = [self titleViewInsetLeft] + [self titleViewInsetRight];
   CGSize boundsSize = CGRectInfinite.size;
-  boundsSize.width = boundingWidth - leftInset - rightInset;
 
-  CGSize titleSize = [self.titleLabel sizeThatFits:boundsSize];
+  boundsSize.width = boundingWidth - titleInsets;
+  CGFloat titleWidth =
+      MAX([self.titleLabel sizeThatFits:boundsSize].width, [self titleIconViewSize].width);
+
+  boundsSize.width = boundingWidth - contentInsets;
   CGSize messageSize = [self.messageLabel sizeThatFits:boundsSize];
   CGSize accessoryViewSize = [self.accessoryView systemLayoutSizeFittingSize:boundsSize];
 
-  CGFloat contentWidth = MAX(MAX(titleSize.width, messageSize.width), accessoryViewSize.width) +
-                         leftInset + rightInset;
-  CGFloat totalElementsHeight = messageSize.height + accessoryViewSize.height;
+  CGFloat maxWidth = MAX(messageSize.width, accessoryViewSize.width);
+  CGFloat contentWidth = MAX(titleWidth + titleInsets, maxWidth + contentInsets);
 
-  CGFloat contentHeight =
-      totalElementsHeight + [self accessoryVerticalInset] + self.contentInsets.bottom;
+  CGFloat totalElementsHeight = messageSize.height + accessoryViewSize.height;
+  CGFloat contentHeight = maxWidth <= 0 ? 0.f
+                                        : totalElementsHeight + [self accessoryVerticalInset] +
+                                              self.contentInsets.bottom + [self contentInsetTop];
+
   return CGSizeMake((CGFloat)ceil(contentWidth), (CGFloat)ceil(contentHeight));
 }
 
@@ -556,24 +568,25 @@ static const CGFloat MDCDialogMessageOpacity = 0.54f;
  @param boundingWidth should not include any internal margins or padding
 */
 - (CGSize)calculateTitleViewSizeThatFitsWidth:(CGFloat)boundingWidth {
-  CGFloat leftInset =
-      MAX(MAX(self.titleInsets.left, self.titleIconInsets.left), self.contentInsets.left);
-  CGFloat rightInset =
-      MAX(MAX(self.titleInsets.right, self.titleIconInsets.right), self.contentInsets.right);
-
+  CGFloat contentInsets = self.contentInsets.left + self.contentInsets.right;
+  CGFloat titleInsets = [self titleViewInsetLeft] + [self titleViewInsetRight];
   CGSize boundsSize = CGRectInfinite.size;
-  boundsSize.width = boundingWidth - leftInset - rightInset;
 
+  boundsSize.width = boundingWidth - contentInsets;
+  CGFloat contentWidth = MAX([self.messageLabel sizeThatFits:boundsSize].width,
+                             [self.accessoryView systemLayoutSizeFittingSize:boundsSize].width);
+
+  boundsSize.width = boundingWidth - titleInsets;
   CGSize titleSize = [self.titleLabel sizeThatFits:boundsSize];
-  CGSize messageSize = [self.messageLabel sizeThatFits:boundsSize];
-  CGSize accessoryViewSize = [self.accessoryView systemLayoutSizeFittingSize:boundsSize];
-  CGFloat titleWidth = MAX(MAX(titleSize.width, messageSize.width), accessoryViewSize.width) +
-                       leftInset + rightInset;
-  CGFloat totalElementsHeight = [self titleIconViewSize].height + titleSize.height;
+  CGSize titleIconSize = [self titleIconViewSize];
+  CGFloat titleViewWidth = MAX(titleIconSize.width, titleSize.width);
+  titleViewWidth = MAX(titleViewWidth + titleInsets, contentWidth + contentInsets);
 
+  CGFloat totalElementsHeight = titleIconSize.height + titleSize.height;
   CGFloat titleHeight = totalElementsHeight + [self titleInsetTop] + [self titleIconInsetBottom] +
                         [self titleInsetBottom];
-  return CGSizeMake((CGFloat)ceil(titleWidth), (CGFloat)ceil(titleHeight));
+
+  return CGSizeMake((CGFloat)ceil(titleViewWidth), (CGFloat)ceil(titleHeight));
 }
 
 // @param boundingWidth should not include any internal margins or padding
@@ -636,21 +649,21 @@ static const CGFloat MDCDialogMessageOpacity = 0.54f;
   self.contentScrollView.contentSize = contentRect.size;
 
   // Place Content in contentScrollView
-  CGFloat horizontalContentInsets = self.contentInsets.left + self.contentInsets.right;
-  boundsSize.width = boundsSize.width - horizontalContentInsets;
-  CGSize titleSize = [self.titleLabel sizeThatFits:boundsSize];
-  titleSize.width = boundsSize.width;
+  CGSize titleBoundsSize = boundsSize;
+  titleBoundsSize.width = boundsSize.width - (self.titleInsets.left + self.titleInsets.right);
+  CGSize titleSize = [self.titleLabel sizeThatFits:titleBoundsSize];
+  titleSize.width = titleBoundsSize.width;
 
-  CGSize messageSize = [self.messageLabel sizeThatFits:boundsSize];
-  messageSize.width = boundsSize.width;
+  CGSize contentBoundsSize = boundsSize;
+  contentBoundsSize.width = boundsSize.width - (self.contentInsets.left + self.contentInsets.right);
+  CGSize messageSize = [self.messageLabel sizeThatFits:contentBoundsSize];
+  messageSize.width = contentBoundsSize.width;
 
   CGSize accessoryViewSize =
-      [self.accessoryView systemLayoutSizeFittingSize:boundsSize
+      [self.accessoryView systemLayoutSizeFittingSize:contentBoundsSize
                         withHorizontalFittingPriority:UILayoutPriorityRequired
                               verticalFittingPriority:UILayoutPriorityFittingSizeLevel];
-  accessoryViewSize.width = boundsSize.width;
-
-  boundsSize.width = boundsSize.width + horizontalContentInsets;
+  accessoryViewSize.width = contentBoundsSize.width;
 
   CGRect titleFrame = [self titleFrameWithTitleSize:titleSize];
   CGRect messageFrame = [self messageFrameWithSize:messageSize];
@@ -671,8 +684,9 @@ static const CGFloat MDCDialogMessageOpacity = 0.54f;
   self.accessoryView.frame = accessoryViewFrame;
 
   // Actions
+  CGSize actionBoundsSize = boundsSize;
   NSArray<MDCButton *> *buttons = self.actionManager.buttonsInActionOrder;
-  CGSize actionSize = [self calculateActionsSizeThatFitsWidth:boundsSize.width];
+  CGSize actionSize = [self calculateActionsSizeThatFitsWidth:actionBoundsSize.width];
 
   CGRect actionsFrame = CGRectZero;
   actionsFrame.size.width = CGRectGetWidth(self.bounds);
