@@ -3,235 +3,295 @@
 import PackageDescription
 
 let package = Package(
-    name: "Material Components iOS",
-    platforms: [ .iOS(.v10) ],
-    products: [
-        .library(name: "MaterialComponents", targets: ["MaterialTextFields"]),
-    ],
-    dependencies:[
-        .package(url:"https://github.com/grupopulpo/material-text-accessibility-ios", from: "2.0.0"),
-        .package(url:"https://github.com/grupopulpo/material-internationalization-ios", from: "2.0.0")
-    ],
-    targets: [
-        .target(name: "AvailabilityT",
-                dependencies:[],
-                path: "components/AvailabilityT"),
-        .target(name: "MaterialTextFields",
-                dependencies:[
-                    .target(name:"AvailabilityT"),
-                    .target(name:"AnimationTiming"),
-                    .target(name:"Buttons"),
-                    .target(name:"Elevation"),
-                    .target(name:"Typography"),
-                    .target(name:"Math"),
-                    .target(name:"Palettes"),
-                    .target(name:"ContainerScheme"),
-                    .target(name:"ShapeScheme"),
-                    .target(name:"TypographyScheme"),
-                    .target(name:"ColorScheme"),
-                    "MDFInternationalization"
+  name: "MaterialComponents",
+  platforms: [ .iOS(.v10) ],
+  products: [
+    .library(name: "MaterialTextFields", targets: [ "MaterialTextFields" ]),
+    .library(name: "MaterialCards", targets: [ "MaterialCards" ]),
+    .library(name: "MaterialFlexibleHeader", targets: [ "MaterialFlexibleHeader" ])
+  ],
+  dependencies:[
+    .package(url:"https://github.com/grupopulpo/material-text-accessibility-ios", from: "2.0.0"),
+    .package(url:"https://github.com/grupopulpo/material-internationalization-ios", from: "2.0.0")
+  ],
+  targets: [
+    .target(name: "AvailabilityT",
+            dependencies:[],
+            path: "components/AvailabilityT"),
+    .target(name: "MaterialTextFields",
+            dependencies:[
+              .target(name:"AvailabilityT"),
+              .target(name:"AnimationTiming"),
+              .target(name:"Buttons"),
+              .target(name:"Elevation"),
+              .target(name:"Typography"),
+              .target(name:"Math"),
+              .target(name:"Palettes"),
+              .target(name:"ContainerScheme"),
+              .target(name:"ShapeScheme"),
+              .target(name:"TypographyScheme"),
+              .target(name:"ColorScheme"),
+              "MDFInternationalization"
             ],
-                path: "components/TextFields/",
-                exclude:[
-                    "src/ColorThemer",
-                    "src/Theming",
-                    "src/private/MDCTextField+Testing.h"
+            path: "components/TextFields/",
+            exclude:[
+              "src/ColorThemer",
+              "src/Theming",
+              "src/private/MDCTextField+Testing.h"
             ],
-                sources: [
-                    "src"
+            sources: [
+              "src"
             ]),
-        .target(name: "AnimationTiming",
-                path: "components/AnimationTiming/",
-                sources: [
-                    "src"
+    .target(name: "MaterialIcons",
+            path: "components/private/Icons/",
+            sources: [
+              "src"
             ],
-                publicHeadersPath:"src"),
-        .target(name: "ContainerScheme", 
-                dependencies:[
-                    .target(name:"ColorScheme"),
-                    .target(name:"ShapeScheme"),
-                    .target(name:"TypographyScheme"),
-                    .target(name:"TypographySchemeBasicFontScheme")
+            publicHeadersPath:"src"),
+    .target(name: "CheckCircle",
+            dependencies: [
+              .target(name: "MaterialIcons")
             ],
-                path: "components/schemes/Container/",
-                sources: [
-                    "src"
+            path: "components/private/Icons/icons/ic_check_circle/",
+            sources: [
+              "src"
             ],
-                publicHeadersPath:"src"),
-        .target(name: "ShapeScheme", 
-                dependencies:[
-                    .target(name:"Shapes"),
-                    .target(name:"ShapeLibrary")
+            publicHeadersPath:"src"),
+    .target(name: "MaterialCards",
+            dependencies:[
+              .target(name:"Elevation"),
+              .target(name:"Ink"),
+              .target(name:"Ripple"),
+              .target(name:"ShadowLayer"),
+              .target(name:"Shapes"),
+              .target(name:"Math"),
+              .target(name:"CheckCircle")
             ],
-                path: "components/schemes/Shape/",
-                sources: [
-                    "src"
+            path: "components/Cards/",
+            exclude:[
+              "src/Theming"
             ],
-                publicHeadersPath:"src"),
-        .target(name: "ShapeLibrary",
-                dependencies:[
-                    .target(name:"Shapes")
+            sources: [
+              "src"
+            ]),
+    .target(name: "MaterialFlexibleHeader",
+            dependencies:[
+              .target(name: "AvailabilityT"),
+              .target(name: "Elevation"),
+              .target(name: "ShadowElevations"),
+              .target(name: "ShadowLayer"),
+              .target(name: "Math"),
+              .target(name: "Application"),
+              .target(name: "UIMetrics"),
+              "MDFTextAccessibility"
             ],
-                path: "components/ShapeLibrary/",
-                sources: [
-                    "src"
+            path: "components/FlexibleHeader/",
+            exclude:[
+
             ],
-                publicHeadersPath:"src"),
-        .target(name: "ColorScheme", 
-                dependencies:[
-                    .target(name:"Color")
+            sources: [
+              "src"
+            ]),
+    .target(name: "UIMetrics",
+            dependencies: [
+              .target(name: "Application")
             ],
-                path: "components/schemes/Color/",
-                sources: [
-                    "src"
+            path: "components/private/UIMetrics/",
+            sources: [
+              "src"
+            ], publicHeadersPath:"src"),
+    .target(name: "AnimationTiming",
+            path: "components/AnimationTiming/",
+            sources: [
+              "src"
             ],
-                publicHeadersPath:"src"),
-        .target(name: "TypographyScheme", 
-                dependencies:[
-                    .target(name:"Typography"),
-                    .target(name:"TypographySchemeScheming"),
-                    .target(name:"TypographySchemeBasicFontScheme")
+            publicHeadersPath:"src"),
+    .target(name: "ContainerScheme",
+            dependencies:[
+              .target(name:"ColorScheme"),
+              .target(name:"ShapeScheme"),
+              .target(name:"TypographyScheme"),
+              .target(name:"TypographySchemeBasicFontScheme")
             ],
-                path: "components/schemes/Typography/",
-                exclude:[
-                    "src/Scheming",
-                    "src/BasicFontScheme"
+            path: "components/schemes/Container/",
+            sources: [
+              "src"
             ],
-                sources: [
-                    "src",
-        ],
-                publicHeadersPath:"src"),
-        .target(name: "TypographySchemeScheming",
-                path: "components/schemes/Typography/src/Scheming/"
-                ),
-        .target(name: "TypographySchemeBasicFontScheme",
-                path: "components/schemes/Typography/src/BasicFontScheme/"),
-        .target(name: "Buttons",
-                dependencies: [
-                    "MDFInternationalization",
-                    "MDFTextAccessibility",
-                    .target(name:"Elevation"),
-                    .target(name:"Ink"),
-                    .target(name:"Ripple"),
-                    .target(name:"ShadowElevations"),
-                    .target(name:"ShadowLayer"),
-                    .target(name:"Shapes"),
-                    .target(name:"Typography"),
-                    .target(name:"ShapeScheme"),
-                    .target(name:"ContainerScheme"),
-                    .target(name:"TypographyScheme"),
-                    .target(name:"ColorScheme"),
-                    .target(name:"Math")
+            publicHeadersPath:"src"),
+    .target(name: "ShapeScheme",
+            dependencies:[
+              .target(name:"Shapes"),
+              .target(name:"ShapeLibrary")
             ],
-                path: "components/Buttons/",
-                exclude: [
-                "src/ButtonThemer",
-                "src/ColorThemer",
-                "src/ShapeThemer",
-                "src/Theming",
-                "src/TitleColorAccessibilityMutator",
-                "src/TypographyThemer",
+            path: "components/schemes/Shape/",
+            sources: [
+              "src"
             ],
-                sources: [
-                    "src"
+            publicHeadersPath:"src"),
+    .target(name: "ShapeLibrary",
+            dependencies:[
+              .target(name:"Shapes")
             ],
-                publicHeadersPath:"src"),
-        .target(name: "Elevation",
-                dependencies: [
-                    .target(name:"AvailabilityT"),
-                    .target(name:"Color"),
-                    .target(name:"Math")
+            path: "components/ShapeLibrary/",
+            sources: [
+              "src"
             ],
-                path: "components/Elevation/",
-                sources: [
-                    "src"
+            publicHeadersPath:"src"),
+    .target(name: "ColorScheme",
+            dependencies:[
+              .target(name:"Color")
             ],
-                publicHeadersPath:"src"),
-        .target(name: "Typography",
-                dependencies: [
-                    .target(name: "Application"),
-                    .target(name: "Math")
+            path: "components/schemes/Color/",
+            sources: [
+              "src"
             ],
-                path: "components/Typography/",
-                sources: [
-                    "src"
+            publicHeadersPath:"src"),
+    .target(name: "TypographyScheme",
+            dependencies:[
+              .target(name:"Typography"),
+              .target(name:"TypographySchemeScheming"),
+              .target(name:"TypographySchemeBasicFontScheme")
             ],
-                publicHeadersPath:"src"),
-        .target(name: "Math", 
-                path: "components/private/Math/",
-                sources: [
-                    "src"
+            path: "components/schemes/Typography/",
+            exclude:[
+              "src/Scheming",
+              "src/BasicFontScheme"
             ],
-                publicHeadersPath:"src"),
-        .target(name: "Palettes", 
-                path: "components/Palettes/",
-                sources: [
-                    "src"
+            sources: [
+              "src",
             ],
-                publicHeadersPath:"src"),
-        .target(name: "Ink",
-                dependencies: [
-                    .target(name: "AvailabilityT"),
-                    .target(name: "Color"),
-                    .target(name: "Math")
+            publicHeadersPath:"src"),
+    .target(name: "TypographySchemeScheming",
+            path: "components/schemes/Typography/src/Scheming/"
+    ),
+    .target(name: "TypographySchemeBasicFontScheme",
+            path: "components/schemes/Typography/src/BasicFontScheme/"),
+    .target(name: "Buttons",
+            dependencies: [
+              "MDFInternationalization",
+              "MDFTextAccessibility",
+              .target(name:"Elevation"),
+              .target(name:"Ink"),
+              .target(name:"Ripple"),
+              .target(name:"ShadowElevations"),
+              .target(name:"ShadowLayer"),
+              .target(name:"Shapes"),
+              .target(name:"Typography"),
+              .target(name:"ShapeScheme"),
+              .target(name:"ContainerScheme"),
+              .target(name:"TypographyScheme"),
+              .target(name:"ColorScheme"),
+              .target(name:"Math")
             ],
-                path: "components/Ink/",
-                sources: [
-                    "src"
+            path: "components/Buttons/",
+            exclude: [
+              "src/ButtonThemer",
+              "src/ColorThemer",
+              "src/ShapeThemer",
+              "src/Theming",
+              "src/TitleColorAccessibilityMutator",
+              "src/TypographyThemer",
             ],
-                publicHeadersPath:"src"),
-        .target(name: "Ripple",
-                dependencies:[
-                    .target(name:"AnimationTiming"),
-                    .target(name:"AvailabilityT"),
-                    .target(name:"Color"),
-                    .target(name:"Math")
+            sources: [
+              "src"
             ],
-                path: "components/Ripple/",
-                sources: [
-                    "src"
+            publicHeadersPath:"src"),
+    .target(name: "Elevation",
+            dependencies: [
+              .target(name:"AvailabilityT"),
+              .target(name:"Color"),
+              .target(name:"Math")
             ],
-                publicHeadersPath:"src"),
-        .target(name: "ShadowElevations", 
-                path: "components/ShadowElevations/",
-                sources: [
-                    "src",
+            path: "components/Elevation/",
+            sources: [
+              "src"
             ],
-                publicHeadersPath:"src"),
-        .target(name: "ShadowLayer", 
-                dependencies: [
-                    .target(name:"ShadowElevations")
+            publicHeadersPath:"src"),
+    .target(name: "Typography",
+            dependencies: [
+              .target(name: "Application"),
+              .target(name: "Math")
             ],
-                path: "components/ShadowLayer/",
-                sources: [
-                    "src"
+            path: "components/Typography/",
+            sources: [
+              "src"
             ],
-                publicHeadersPath:"src"),
-        .target(name: "Shapes",
-                dependencies:[
-                    .target(name:"ShadowLayer"),
-                    .target(name:"Color"),
-                    .target(name:"Math")
+            publicHeadersPath:"src"),
+    .target(name: "Math",
+            path: "components/private/Math/",
+            sources: [
+              "src"
             ],
-                path: "components/Shapes/",
-                sources: [
-                    "src"
+            publicHeadersPath:"src"),
+    .target(name: "Palettes",
+            path: "components/Palettes/",
+            sources: [
+              "src"
             ],
-                publicHeadersPath:"src"),
-        .target(name: "Color",
-                dependencies: [
-                    .target(name:"AvailabilityT")
+            publicHeadersPath:"src"),
+    .target(name: "Ink",
+            dependencies: [
+              .target(name: "AvailabilityT"),
+              .target(name: "Color"),
+              .target(name: "Math")
             ],
-                path: "components/private/Color/",
-                sources: [
-                    "src"
+            path: "components/Ink/",
+            sources: [
+              "src"
             ],
-                publicHeadersPath:"src"),
-        .target(name: "Application", 
-                path: "components/private/Application/",
-                sources: [
-                    "src"
+            publicHeadersPath:"src"),
+    .target(name: "Ripple",
+            dependencies:[
+              .target(name:"AnimationTiming"),
+              .target(name:"AvailabilityT"),
+              .target(name:"Color"),
+              .target(name:"Math")
             ],
-                publicHeadersPath:"src")
-    ]
+            path: "components/Ripple/",
+            sources: [
+              "src"
+            ],
+            publicHeadersPath:"src"),
+    .target(name: "ShadowElevations",
+            path: "components/ShadowElevations/",
+            sources: [
+              "src",
+            ],
+            publicHeadersPath:"src"),
+    .target(name: "ShadowLayer",
+            dependencies: [
+              .target(name:"ShadowElevations")
+            ],
+            path: "components/ShadowLayer/",
+            sources: [
+              "src"
+            ],
+            publicHeadersPath:"src"),
+    .target(name: "Shapes",
+            dependencies:[
+              .target(name:"ShadowLayer"),
+              .target(name:"Color"),
+              .target(name:"Math")
+            ],
+            path: "components/Shapes/",
+            sources: [
+              "src"
+            ],
+            publicHeadersPath:"src"),
+    .target(name: "Color",
+            dependencies: [
+              .target(name:"AvailabilityT")
+            ],
+            path: "components/private/Color/",
+            sources: [
+              "src"
+            ],
+            publicHeadersPath:"src"),
+    .target(name: "Application",
+            path: "components/private/Application/",
+            sources: [
+              "src"
+            ],
+            publicHeadersPath:"src")
+  ]
 )

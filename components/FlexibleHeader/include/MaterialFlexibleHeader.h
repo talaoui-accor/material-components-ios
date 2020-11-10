@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "MDCFlexibleHeaderContainerViewController.h"
-#import "MDCFlexibleHeaderSafeAreaDelegate.h"
-#import "MDCFlexibleHeaderView+ShiftBehavior.h"
-#import "MDCFlexibleHeaderView.h"
-#import "MDCFlexibleHeaderViewAnimationDelegate.h"
-#import "MDCFlexibleHeaderViewController.h"
-#import "MDCFlexibleHeaderViewDelegate.h"
-#import "MDCFlexibleHeaderViewLayoutDelegate.h"
+#import "../src/MDCFlexibleHeaderContainerViewController.h"
+#import "../src/MDCFlexibleHeaderSafeAreaDelegate.h"
+#import "../src/MDCFlexibleHeaderView+ShiftBehavior.h"
+#import "../src/MDCFlexibleHeaderView.h"
+#import "../src/MDCFlexibleHeaderViewAnimationDelegate.h"
+#import "../src/MDCFlexibleHeaderViewController.h"
+#import "../src/MDCFlexibleHeaderViewDelegate.h"
+#import "../src/MDCFlexibleHeaderViewLayoutDelegate.h"
